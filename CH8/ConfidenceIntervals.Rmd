@@ -1,0 +1,38 @@
+---
+title: "Confidence Intervals for Point Estimators"
+#author: "user"
+#date: "11/03/2014"
+output: html_document
+runtime: shiny
+---
+**The following example was derived from code found at
+http://pages.stat.wisc.edu/~yandell/st571/R/append.html
+
+Consider a distribution of **Tail Feather lengths**
+measured in cm.
+
+In the following, we will estimate the mean tail feather length
+by sampling from this distribution,
+and construct a confidence interval
+under the assumption that the $sigma$ of the tail feather length population
+is known.
+
+We repeat this process 100 times,
+and display the resulting intervals in the second graph.
+Intervals that do **not contain** the true mean are shown in red.
+
+Observe the **actual percentage** of intervals that do **not contain**
+the true mean displayed in the title of the second graph
+by clicking on the **Repeat** button, as well as the error estimate **$\hat{\mu} \pm err$**, whith **$err = z_\frac{\alpha}{2} \frac{\sigma}{\sqrt{N}}$**.
+
+**Remark:** we are drawing **N** samples at random from a distribution
+defined by 24 data points, with $N > 24$ at times!
+
+```{r, echo=FALSE}
+shinyAppDir(
+  ".",
+  options=list(
+    width="150%", height=1300
+  )
+)
+```
