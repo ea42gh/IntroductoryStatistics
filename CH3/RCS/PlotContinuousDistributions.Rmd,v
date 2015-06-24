@@ -1,0 +1,57 @@
+head	1.1;
+access;
+symbols;
+locks
+	user:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2014.10.04.16.17.56;	author user;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@---
+title: "Continuous Distributions"
+#author: "user"
+#date: "09/26/2014"
+output: html_document
+runtime: shiny
+---
+```{r,echo=FALSE}
+source('ContDistributions.r')
+```
+# 1 - Bernoulli Trials
+## The Binomial Distribution
+* **N** *independent* Bernoulli trials (success/failure)
+* **p** constant probability of success
+
+Canonical Problem: sampling with replacement
+
+**X** determines the number of successes in **N** trials
+
+$$f(x) = C^N_x p^x (1-p)^{N-x}, \quad E(X) = N p, \quad Var(X)= N p (1-p)$$
+```{r, echo=FALSE}
+inputPanel(
+  sliderInput("num_binom", label = "Number of Trials N:",
+              min = 1, max = 500, value = 20, step = 1)
+  ,sliderInput("p_binom", label = "Probability p",
+              min = 0.01, max = 1, value = 0.5, step = .01)
+)
+
+renderPlot({
+  plotbinom( input$num_binom, input$p_binom)
+})
+```
+
+@

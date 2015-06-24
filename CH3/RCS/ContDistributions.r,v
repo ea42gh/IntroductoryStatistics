@@ -1,0 +1,305 @@
+head	1.1;
+access;
+symbols;
+locks
+	user:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2014.10.04.16.17.56;	author user;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@# Binomial Distribution
+# Negative Binomial Distribution
+# Exponential Distribution
+# Gamma Distribution
+# Geometric Distribution
+# Hypergeometric Distribution
+# Beta Distribution
+# Poisson Distribution
+# Weibull Distribution
+# Normal Distribution
+
+show_mean_sd <- function( x_bar, sd ) {
+  x <- c( x_bar-sd, x_bar, x_bar+sd)
+  y <- c(0,0,0)
+  points(x,y,pch=17,cex=2.5,col=c("magenta","darkred","magenta") )
+  #abline( v=x_bar,   col='darkblue')
+  #abline( v=x_bar-sd,col='blue')
+  #abline( v=x_bar+sd,col='blue')
+}
+# =======================================================================================
+# Bernouilli Trials
+
+plotbinom <- function( N, p ) {
+    # number of successes x in N trials
+    x <- seq( from = 0, to = N )
+    y <- dbinom( x, N, p )
+    
+    x_bar <- N*p    
+    sd    <- sqrt(N*p*(1-p))
+    
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "Binomial (Number of Successes) N = %d, p = %6.2f, mean=%6.1f, sdev=%6.1f", N, p, x_bar,sd ))
+    show_mean_sd(x_bar,sd)
+}
+# ---------------------------------------------------------------------------------------
+plotgeom <- function( p, showFirstN = 50 ) {
+    # number of trials until first success
+    x <- seq( from=0,to=showFirstN-1 )
+    y <- dgeom(x, p )
+    x <- seq( from=1,to=showFirstN )
+  
+    x_bar <- 1/p    
+    sd    <- sqrt(1-p)/p
+  
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "Geometric (first success), p =%8.4f, mean=%6.1f, sdev=%6.1f", p, x_bar, sd ))
+    show_mean_sd(x_bar,sd)
+}
+# ---------------------------------------------------------------------------------------
+plotnbinom <- function( n, np, p ) {
+    # number of trials until n'th success
+    x <- seq( from = 0, to = np-1 ) # number of failures
+    y <- dnbinom( x, n, p )
+    x <- seq( from = n, to = np+n-1 )
+
+    x_bar <- n/p    
+    sd    <- sqrt(n*(1-p))/p
+  
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "NegBinomial n=%d, N=%d, p=%5.2f, mean=%6.1f, sdev=%6.1f", n, np, p, x_bar, sd ))
+    show_mean_sd(x_bar,sd)
+}
+
+# =======================================================================================
+# Selection without replacement
+
+plothyper <- function( n1, n2, n, show_binom = FALSE ) {
+    # n1 possible successes, n2 possible failures, n number of selected items
+    x <- seq( from=0, to=n)
+    y <- dhyper( x, n1, n2, n )
+
+    N     <- n1+n2
+
+    p     <- n1/N
+    x_bar <- n*p
+    sd    <- sqrt( n*p*(1-p) * (N-n)/(N-1) )
+
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "HyperGeom, pick %d from (%d,%d), mean=%6.1f, sdev=%6.1f", n, n1, n2, x_bar, sd ))
+    show_mean_sd(x_bar,sd)
+
+    if (show_binom) {
+       yb <- dbinom( x, n, p )
+       points( x,yb,col="blue" )
+    }
+}
+# ---------------------------------------------------------------------------------------
+plotpoisson <- function( lambda, extent=20) {
+    # Constant Rate of occurrence of events
+    x <- seq( from=0,to=extent )
+    y <- dpois(x, lambda)
+
+    x_bar <- lambda
+    sd    <- lambda
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "Poisson, lambda T = %8.4f, mean=%6.1f, sdev=%6.1f", lambda , x_bar, sd))
+    show_mean_sd(x_bar,sd)
+}
+
+
+
+
+
+
+# ---------------------------------------------------------------------------------------
+plotexponential <- function( lambda, np=100, extent=50) {
+    x <- seq( from=0,to=extent, length.out=np )
+    y <- dexp(x, lambda)
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "Exponential Distr., lambda = %8.4f", lambda ))
+}
+
+plotgamma <- function( shape, rate, np=100, extent = 50 ) {
+    x <- seq( from=0,to=extent, length.out=np )
+    y <- dgamma(x, shape, rate )
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "Gamma, shape = %8.4f, rate =%8.4f", shape, rate ))
+}
+
+
+plotbeta <- function( shape1, shape2, np=101 ) {
+    x <- seq( from=0,to=1, length=np )
+    y <- dbeta(x, shape1, shape2 )
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "Beta s_1 = %8.4f, s_2 =%8.4f", shape1, shape2 ))
+}
+
+plotweibull <- function( shape, lambda, np=101 ) {
+    x <- seq( from=0,to=20, length=np )
+    y <- dweibull(x, shape, lambda )
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "Weibull s = %8.4f, l =%8.4f", shape, lambda ))
+}
+
+plotnormal <- function( mu, sigma, np=100, ext_sigma=3) {
+    extent <- ext_sigma*ext_sigma
+    x <- seq( from=(-extent),to=extent,length=np )
+    y <- dnorm(x, mu, sigma )
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "Gaussian, mu = %8.4f, sigma = %8.4f, n_points = %d", mu, sigma, np ))
+}
+# ==============================================================================================
+plot_sample_means <- function(f_sample, n, m=300,title="Histogram", ...) {
+
+  # define a vector to hold our sample means
+  means <- double(m)
+
+  # generate 300 samples of size n and store their means
+  for(i in 1:m) means[i] = mean(f_sample(n,...))
+
+  # scale sample means to plot against standard normal
+  scaled_means <- scale(means)
+
+  # set up a two panel plot
+  par(mfrow=c(1,2))
+  par(mar=c(5,2,5,1)+0.1)
+
+  # plot histogram and density of scaled means
+  hist(scaled_means, prob=T, col="light grey", border="grey", main=NULL) #, ylim=c(0,0.4))
+  lines(density(scaled_means),col="blue")
+
+  # overlay the standard normal curve in red for comparison
+  curve(dnorm(x,0,1), -3, 3, col='red', add=T)
+
+  # adjust margins and draw the quantile-quantile plot
+  par(mar=c(5,1,5,2)+0.1)
+  qqnorm(means, main="")
+
+  # return margins to normal and go back to one panel
+  par(mar=c(5,4,4,2)+0.1)
+  par(mfrow=c(1,1))
+
+  # add a title
+  par(omi=c(0,0,0.75,0))
+  title(paste(title, ", n=", n, sep=""), outer=T)
+  par(omi=c(0,0,0,0))
+
+  # return unscaled means (without printing)
+  return(invisible(means))
+}
+if (F) {
+   # show that as the sample size increases, the means approach a normal distibution
+   x11(); plot_sample_means(runif, n=1, title="Sample means from uniform distribution")
+   x11(); plot_sample_means(runif, n=2, title="Sample means from uniform distribution")
+   
+   
+   x11(); plot_sample_means(runif, n=10, title="Sample means from uniform distribution")
+   
+   # other distributions
+   x11(); plot_sample_means(rexp, n=6, title="Sample means from the exponential distribution", rate=1)
+   
+   x11(); plot_sample_means(rexp, n=48, title="Sample means from the exponential distribution", rate=1)
+} 
+
+
+# ==============================================================================================
+if (F) {
+    x11()
+    plotnormal(0,1,200)
+}
+
+if (F) {
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(5, 10, 20, 100)) plotbinom( i, 0.5)
+   #title( "Binomial Distribution; Increasing n" )
+
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(.1,.3,.5,.95)) plotbinom(100, i)
+   #title( "Binomial Distribution; Increasing n" )
+}
+
+if (F) {
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(5, 10, 20, 50)) plotnbinom( i, 100, 0.5)
+   #title( "Binomial Distribution; Increasing n" )
+
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(5, 10, 20, 50)) plotnbinom( i, 100, 0.1)
+   #title( "Binomial Distribution; Increasing n" )
+}
+
+if (F) {
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(0.1, 1, 5., 10)) plotpoisson( i)
+}
+
+if (F) {
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(0.05, 1, 2, 5)) plotweibull(i,1)
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(0.05, 1, 2, 5)) plotweibull(1,i)
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(0.5, 5, 10, 15)) plotweibull(i,i)
+}
+
+
+
+if (F) {
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(0.05, 0.1, 0.25, 0.5)) plotexponential( i)
+}
+
+if (F) {
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(0.1, 1, 5, 10)) plotgamma(i,0.2)
+
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(0.02, .1, .5, 2)) plotgamma(5,i)
+}
+
+if (F) {
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(0.01, 0.1, 0.2, 0.5)) plotgeom( i)
+}
+
+if (F) {
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(0,40,200,400)) plothyper(500-i,500+i,100)
+}
+
+if (F) {
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(.001,.5,1., 4)) plotbeta(i,.5)
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(.001,.5,1., 4)) plotbeta(.5,i)
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(.001,.5,1., 4)) plotbeta(i,i)
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(.001,.5,1., 4)) for (j in c(4.,1.,.5,.001)) plotbeta(j,i)
+   x11()
+   par(mfrow=c(2,2))
+   for (i in c(5,50.,100, 200)) plotbeta(i,i)
+}
+
+@

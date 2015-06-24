@@ -1,0 +1,189 @@
+---
+title: "Writing Some Code"
+#author: "user"
+#date: "10/18/2014"
+output: html_document
+runtime: shiny
+---
+
+## 1 Distribution Functions
+
+**R** provides functions to work with distributions.  
+As an example, consider the **Poisson Distribution** (pois)
+
+For each distribution, four functions are provided with
+prefix *d*, *p*, *q*, *r*, yielding
+
+* **dpois** - the density of the Poisson distribution (pdf)
+* **ppois** - the cumulative Poisson distribution     (cpf)
+* **qpois** - the quantile function computes x for a given probability p=P(X<x)
+* **rpois** - random samples drawn from a Poisson distribution
+
+Look at the examples from the previous weeks for distributions you have learned about!
+
+```{r, echo=TRUE}
+require(graphics)   # load the graphics functions into R
+par(mfrow=c(2,1))   # set up a display of 2x1 plots
+
+lambda_T <- 4
+x        <- seq( 0, 10, 1)      # values from 0 to 10 with increment 1
+cpf      <- ppois(x, lambda_T)  # cpf for each of the x values
+pdf      <- dpois(x, lambda_T)  # pdf for each of the x values
+
+x.5      <- qpois(0.5,lambda_T) # smallest x value for which 0.5 <= P(X<=x)
+
+plot(x,cpf,main='CPF', type='s', xlab='x', ylab='F(x)=P(X<=x)')     # plot with steps
+abline( v= x.5, col='red')       # add a vertical line at x=x.5
+abline( h=0.5, col='red', lty=3) # add a horizontal dashed line at y=.5
+
+plot(x,pdf,main='PDF (delta functions)', type='h', xlab='x', ylab='f(x)=d/dx P(X<=x)') # plot with stems
+```
+
+We can select entries from the Poisson distribution at random.
+A histogram of these entries will approach the shape of the pdf
+
+```{r, echo=TRUE}
+y<-rpois(1000,lambda_T)    # get 1000 values from a Poisson Distribution
+hist(y,breaks=80,freq=FALSE,main='PDF estimate')        # draw a histogram (A lot of breaks to show the discrete values)
+```
+
+## 2 Loops, Functions, Sliders and Selectors
+
+### 2.1 A simple loop
+
+```{r, echo=TRUE}
+for (i in seq(3)) {  # seq(3) is an array with the values 1,2,3
+  print(i)
+}
+```
+Note we could have written "1:3" instead of "seq(3)"  
+The **seq** function is more general. Type **"help(seq)"** in the rstudio console window for more information
+
+### 2.2 Assign some values to an array
+
+```{r, echo=TRUE}
+vals <- numeric(10)  #set up an array of 10 elements
+for (i in 1:length(vals)) {  # loop over all the values of the array
+  vals[i] <- mean( rpois(20,lambda_T))
+}
+print(vals)
+```
+
+### 2.3 Functions
+
+Repeat the previous example by defining a function.  
+We'll generalize it and allow changes to the number of experiments (10)  
+and the number of samples (20) used for the computation of the mean
+
+```{r, echo=TRUE}
+# The following defines a function called "compute" with 3 input arguments
+compute <- function( n, m, lambda_T) {
+    vals <- numeric(m)  #set up an array of m elements
+    for (i in 1:length(vals)) {  # loop over all the values of the array
+      vals[i] <- mean( rpois(n, lambda_T))
+    }
+    vals  # the value(s) returned by the function on the last line
+}
+
+# now call the function
+v <- compute(20, 10, 4)
+print(v)
+```
+
+We can get fancy and pass the distribution function as an argument:  
+We will generalize the previous example to allow us to compute the mean of any distribution
+
+```{r, echo=TRUE}
+# The following defines a function called "my_func" to compute samples of a distribution
+# The intent is to make sure it takes a single argument n
+# The global variable "lambda_T" would be visible and could be used directly
+#     I chose to pass the value 4 to "rpois" directly
+my_func <- function(n) {
+    rpois(n, 4)
+}
+
+# The new "compute" function now gets an argument "func" that will be called with a single argument
+compute_my_func <- function( func, n, m ) {
+    vals <- numeric(m)  #set up an array of m elements
+    for (i in 1:length(vals)) {  # loop over all the values of the array
+      vals[i] <- mean( func(n) )
+    }
+    vals  # the last line in a function is the result, i.e., the set of output value(s)
+}
+
+# now call the function with "my_func" and assign its output values to "v"
+v <- compute_my_func( my_func, 20, 10 )
+print(v)
+```
+
+### 2.4 Display some input controls and a graph
+
+```{r, echo=TRUE}
+# First define the interface elements:
+#     We are adding a selection box with value input$n_breaks
+#     and a slider with value input$bandwidth
+inputPanel(
+    selectInput("n_breaks", label = "Number of bins:",
+                choices = c(10, 20, 35, 50), selected = 20),   # note the comma at the end of this line:
+                                                               # we are about to add the slider
+  
+    sliderInput("bandwidth", label = "Bandwidth adjustment:",
+                min = 0.2, max = 2, value = 1, step = 0.2)
+)
+
+# we now define the plot
+renderPlot({
+    #functions, computations and a plot go here
+    # note we could reuse the functions we defined above, i.e.,
+    print( compute_my_func(my_func,3,4))
+  
+    # Compute some samples from the normal distributions
+    # We'll draw a histogram and something more fancy:
+    #     sort of an interpolated form of the histogram (i.e., density)
+    y    <- rnorm(50)   # 50 samples from a normal distribution
+    dens <- density(y, adjust = input$bandwidth) # weighted average of neighboring samples, where
+                                                 # bandwidth determines the number of neighboring samples
+ par(mfrow=c(1,2))
+  
+    hist(y,  probability = TRUE, breaks=as.integer(input$n_breaks)) # draw the histogram
+                #  the "as.integer()" function insures breaks is assigned an integer value
+
+    lines(dens, col = "blue") # add the density
+    x<-seq(min(y),max(y),.1)
+    lines(x,dnorm(x), col="red") # add a plot of the normal
+
+hist(y,  probability = TRUE, breaks=as.integer(input$n_breaks)) # draw the histogram
+
+})
+```
+
+Change the number of samples from 50 to 5000 in the example above. What happens?
+Can you change the example to make the number of samples another input, e.g., using   
+sliderInput("num", label = "Number of samples:", min = 10, max = 10000, value = 50, step = 10)
+
+## 3 Optional Homework Assignment
+
+Write an rstudio example like this one, and submit it electronically.  
+I want to make your efforts available to the class as a whole!  
+**Ask me for help whenever you are stuck!**
+
+* Pick a **distribution** of your choice
+
+* Pick two numbers **N > 0** and **M > 0**
+
+* Experiment: draw **N** samples from the distribution and compute their mean
+
+* Repeat the experiment **M** times, and display a histogram of the **mean** values
+
+* What happens when you increase **N**?
+
+* What happens when you increase the number of values **M**?
+
+* Repeat the experiment with a computation of the standard deviation instead of the mean
+
+* What happens if you choose a different distribution?
+
+** Basically, you only need to modify one or two lines  
+as you stitch together the examples above. **
+If you want to break the text and the code into separate files,
+look at what I did with the Distribution Examples I gave you previously.

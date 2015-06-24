@@ -1,0 +1,110 @@
+---
+title: "Sample Estimators"
+#author: "user"
+#date: "10/18/2014"
+output: html_document
+runtime: shiny
+---
+
+## Sample Means
+
+```{r, echo=FALSE}
+require(graphics)   # load the graphics functions into R
+source('../CH3/distributions.r')
+source('../CH3/ContDistributions.r')
+# ==============================================================================================
+adj_density <- function( data, height=0, mu=0 ) {
+    # compute the density and adjust the values
+
+    d <- density(data)
+    if ( mu == 0 ) {
+       d$X <- d$x
+    } else {
+       d$X <- d$x + mu
+    }
+    if ( height > 0 ) {
+       d$Y <- height * d$y / max(d$y)
+    } else {
+       d$Y <- d$y
+    }
+    d$xlim <- c( round(min(d$X)-.3,1), round(max(d$X+.3),1))
+    d$ylim <- c(                    0, round(max(d$Y)+.1, 1))
+    d
+}
+# ==============================================================================================
+plot_sample_estimates <- function(f_sample, num_samples, estimator=mean, num_experiments=300,title="Histogram", ...) {
+
+  # define a vector to hold our sample estimates
+  estimates <- double(num_experiments)
+
+  # generate num_experiments samples of size num_samples and store the derived estimate
+  for(i in 1:num_experiments) estimates[i] = estimator(f_sample(num_samples,...))
+
+  # scale sample estimates to plot against standard normal
+  scaled_estimates <- scale(estimates)
+
+  # set up a two panel plot
+  par(mfrow=c(1,2))
+  par(mar=c(5,2,5,1)+0.1)
+
+  # plot histogram and density of scaled estimates
+  hist( scaled_estimates, prob=T, col="light grey", border="grey", main=NULL) #, ylim=c(0,0.4))
+  lines(density(scaled_estimates),col="blue")
+
+  # overlay the standard normal curve in red for comparison
+  curve(dnorm(x,0,1), -3, 3, col='red', add=T)
+
+  # adjust margins and draw the quantile-quantile plot
+  par(mar=c(5,1,5,2)+0.1)
+  qqnorm(estimates, main="")
+
+  # return margins to normal and go back to one panel
+  par(mar=c(5,4,4,2)+0.1)
+  par(mfrow=c(1,1))
+
+  # add a title
+  par(omi=c(0,0,0.75,0))
+  title(paste(title, ", n=", num_samples, sep=""), outer=T)
+  par(omi=c(0,0,0,0))
+
+  # return unscaled estimates (without printing)
+  return(invisible(estimates))
+}
+
+if (F) {
+   # show that as the sample size increases, the estimates approach a normal distibution
+   x11(); plot_sample_estimates(runif, num_samples=1, title="Sample estimates from uniform distribution")
+   x11(); plot_sample_estimates(runif, num_samples=2, title="Sample estimates from uniform distribution")
+   x11(); plot_sample_estimates(runif, num_samples=10, title="Sample estimates from uniform distribution")
+   
+   # other distributions
+   x11(); plot_sample_estimates(rexp, num_samples=6, title="Sample estimates from the exponential distribution", rate=1)
+   x11(); plot_sample_estimates(rexp, num_samples=48, title="Sample estimates from the exponential distribution", rate=1)
+} 
+```
+
+```{r, echo=FALSE}
+# First define the interface elements:
+#     We are adding a selection box with value input$n_breaks
+#     and a slider with value input$bandwidth
+inputPanel(
+     selectInput("func", label = "Functions:",
+                choices = c("runif","rpoiss","rexp"), selected = "runif")
+  
+    ,numericInput("n_samples", label = "Number of Samples", value = 1, min = 1, max = 10000, step = 1)
+    #,sliderInput("n_samples", label = "Number of Samples:",
+    #            min = 1, max = 3000, value = 2, step = 1)
+    ,sliderInput("n_experiments", label = "Number of Experiments:",
+                min = 5, max = 1000, value = 20, step = 1)
+)
+
+# we now define the plot
+renderPlot({
+   r_func <- get( as.character(input$func), mode="function")
+   plot_sample_estimates( r_func, num_samples=input$n_samples, num_experiments=input$n_experiments )
+})
+
+renderPlot({
+   plot_sample_estimates(runif, estimator=median,num_samples=input$n_samples, num_experiments=input$n_experiments)
+})
+```

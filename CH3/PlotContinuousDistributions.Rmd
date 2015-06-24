@@ -1,0 +1,168 @@
+---
+title: "Continuous Distributions"
+#author: "user"
+#date: "09/26/2014"
+output: html_document
+runtime: shiny
+---
+```{r,echo=FALSE}
+source('ContDistributions.r')
+```
+# 4 - Distributions for Poisson Processes
+## The Exponential Distribution
+
+Canonical Problem: Events occur continuously at constant average rate      
+Important Property: memoryless   
+Continuous analogue of the Geometric Distribution
+
+**X** determines the distance until the first event of a Poisson process
+
+$$f(x) = \lambda e^{-\lambda x}, x \ge 0, \lambda > 0,  \quad E(X) = \frac{1}{\lambda}, \quad Var(X)= \frac{1}{\lambda^2}$$
+```{r, echo=FALSE}
+inputPanel(
+  sliderInput("lambda_exp", label = "Rate lambda:",
+              min = 0, max = 100, value = 2., step = 0.01)
+  ,sliderInput("e_exp", label = "Extent",
+              min = 0.1, max = 100, value = 4., step = .1)
+  ,sliderInput("n_exp", label = "Number of Points",
+              min = 1, max = 1000, value = 200, step = 1)
+)
+
+renderPlot({
+  plotexponential(input$lambda_exp, input$n_exp, input$e_exp )
+})
+```
+
+## The Gamma Distribution
+
+Canonical Problem: Distance to the occurrence of the **$r^{th}$** event  
+Generalizes the exponential distribution
+
+**X** determines the distance until the occurence of the **$r^{th}$** event in a Poisson process (**Erlang Distribution**)  
+**r** may be generalized to any real $r \gt 0$ (**Gamma Distribution**).
+
+$$f(x) = \frac{\lambda^r}{\Gamma(r)} x^{r-1} e^{-\lambda x},  \quad E(X) = \frac{r}{\lambda}, \quad Var(X)= \frac{r}{\lambda^2}$$
+```{r, echo=FALSE}
+inputPanel(
+  sliderInput("alpha_gam", label = "r (shape parameter)",
+              min = 0.001, max = 50., value = 2., step = 0.01)
+  ,sliderInput("beta_gam", label = "lambda (inverse scale parameter)",
+              min = 0.001, max = 50., value = 1., step = .01)
+  ,sliderInput("e_gam", label = "Extent",
+              min = 0.1, max = 50, value = 8., step = .1)
+  ,sliderInput("n_gam", label = "Number of Points",
+              min = 1, max = 200, value = 30, step = 1)
+)
+
+renderPlot({
+  plotgamma(input$alpha_gam, input$beta_gam, input$n_gam, input$e_gam )
+})
+```
+
+## The Weibull Distribution
+
+Canonical Problem: distance until the first failure when the number of occurrences is **NOT** constant
+
+* $\beta < 1$  rate decreases with time (infant mortality)
+
+* $\beta > 1$  rate increases with time (aging process)
+
+* $\beta = 1$  constant rate
+
+Special Cases
+
+* Exponential distribution for $\beta=1, \delta=\frac{1}{\lambda}$
+
+* Rayleigh distribution when $\beta = 2$ (e.g., vector length when components are normally distributed)
+
+**X** determines the distance to the first event
+
+$$f(x) = \frac{\beta}{\delta} ( \frac{x}{\delta} )^{\beta-1} e^{-( \frac{x}{\delta} )^\beta}, 0 \le x, \beta > 0, \delta > 0, \quad E(X) = \delta \Gamma (1+\tfrac{1}{\beta}), \quad Var(X)= \delta^2 \Gamma (1+\tfrac{2}{\beta}) - \delta^2 \Gamma^2(1+\tfrac{1}{\beta})$$
+
+$$F(x) = $1-e^{-(\frac{x}{\delta})^\beta}$$
+```{r, echo=FALSE}
+inputPanel(
+  sliderInput("shape_wei", label = "beta (shape parameter)",
+              min = 0.01, max = 3., value = 1., step = 0.01)
+  ,sliderInput("lambda_wei", label = "delta (scale parameter)",
+              min = 0.01, max = 3., value = 1., step = .01)
+  ,sliderInput("e_wei", label = "Extent",
+              min = 1, max = 20, value = 10, step = 0.5)
+  ,sliderInput("n_wei", label = "Number of Points",
+              min = 2, max = 200, value = 40, step = 1)
+)
+
+renderPlot({
+  plotweibull(input$shape_wei, input$lambda_wei, extent=input$e_wei, np=input$n_wei )
+})
+```
+
+## 5 The Normal Distribution
+
+Probability that any real observation will fall between any two real limits
+
+**X** determines the value of the variable
+
+$$f(x) = \frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}, \quad E(X) = \mu, \quad Var(X) = \sigma$$
+```{r, echo=FALSE}
+inputPanel(
+  sliderInput("mu_gauss", label = "mu",
+              min = -10, max = 10., value = 0., step = 0.01)
+  ,sliderInput("sigma_gauss", label = "sigma",
+              min = 0.001, max = 50., value = 1., step = .01)
+  ,sliderInput("e_gauss", label = "Extent/sigma",
+              min = 1, max = 15, value = 3, step = 0.5)
+  ,sliderInput("n_gauss", label = "Number of Points",
+              min = 2, max = 500, value = 100, step = 1)
+)
+
+renderPlot({
+  plotnormal(input$mu_gauss, input$sigma_gauss, input$e_gauss, np=input$n_gauss )
+})
+```
+
+## The Lognormal Distribution
+
+The distribution of $e^X$ when $X$ has a normal distribution
+
+$$f(x) = \frac{1}{x \omega \sqrt{2 \pi}} e^{-\frac{(\ln(x)-\theta)^2}{2 \omega^2}}, 0 < x, \quad E(X) = e^{\theta + \frac{\omega^2}{2}}, \quad Var(X) = e^{2 \theta+\omega^2}( e^{\omega^2} - 1 )$$
+
+```{r, echo=FALSE}
+inputPanel(
+  sliderInput("mu_lgauss", label = "theta",
+              min = -10, max = 10., value = 0., step = 0.01)
+  ,sliderInput("sigma_lgauss", label = "omega",
+              min = 0.001, max = 3., value = 1., step = .01)
+  ,sliderInput("e_lgauss", label = "Extent/sigma",
+              min = 1, max = 30, value = 15, step = 0.5)
+  ,sliderInput("n_lgauss", label = "Number of Points",
+              min = 2, max = 500, value = 250, step = 1)
+)
+
+renderPlot({
+  plotlognormal(input$mu_lgauss, input$sigma_lgauss, input$e_lgauss, np=input$n_lgauss )
+})
+```
+
+# 6 Distributions over a finite interval
+
+## The Beta Distribution
+
+**X** determines the proportion of a quantity
+
+$$f(x) = \frac{x^{\alpha-1}{(1-x)}^{\beta-1}}{B(\alpha, \beta)}, 0\le x \le 1, \quad E(X) = \frac{\alpha}{\alpha + \beta}, \quad Var(X)= \frac{\alpha \beta}{(\alpha + \beta)^2 (\alpha+\beta +1)}$$
+```{r, echo=FALSE}
+inputPanel(
+  sliderInput("alpha_bet", label = "alpha (shape parameter)",
+              min = 0.01, max = 50., value = 2., step = 0.01)
+  ,sliderInput("beta_bet", label = "beta (shape parameter)",
+              min = 0.01, max = 50., value = 2., step = .01)
+  ,sliderInput("n_bet", label = "Number of Points",
+              min = 2, max = 200, value = 40, step = 1)
+)
+
+renderPlot({
+  plotbeta(input$alpha_bet, input$beta_bet, np=input$n_bet )
+})
+```
+

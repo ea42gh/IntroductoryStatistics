@@ -1,0 +1,106 @@
+head	1.1;
+access;
+symbols;
+locks
+	user:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2014.10.04.16.17.56;	author user;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@show_mean_sd <- function( x_bar, sd ) {
+  x <- c( x_bar-sd, x_bar, x_bar+sd)
+  y <- c(0,0,0)
+  points(x,y,pch=17,cex=2.5,col=c("magenta","darkred","magenta") )
+  #abline( v=x_bar,   col='darkblue')
+  #abline( v=x_bar-sd,col='blue')
+  #abline( v=x_bar+sd,col='blue')
+}
+# =======================================================================================
+# Bernouilli Trials
+
+plotbinom <- function( N, p ) {
+    # number of successes x in N trials
+    x <- seq( from = 0, to = N )
+    y <- dbinom( x, N, p )
+    
+    x_bar <- N*p    
+    sd    <- sqrt(N*p*(1-p))
+    
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "Binomial (Number of Successes) N = %d, p = %6.2f, mean=%6.1f, sdev=%6.1f", N, p, x_bar,sd ))
+    show_mean_sd(x_bar,sd)
+}
+# ---------------------------------------------------------------------------------------
+plotgeom <- function( p, showFirstN = 50 ) {
+    # number of trials until first success
+    x <- seq( from=0,to=showFirstN-1 )
+    y <- dgeom(x, p )
+    x <- seq( from=1,to=showFirstN )
+  
+    x_bar <- 1/p    
+    sd    <- sqrt(1-p)/p
+  
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "Geometric (first success), p =%8.4f, mean=%6.1f, sdev=%6.1f", p, x_bar, sd ))
+    show_mean_sd(x_bar,sd)
+}
+# ---------------------------------------------------------------------------------------
+plotnbinom <- function( n, np, p ) {
+    # number of trials until n'th success
+    x <- seq( from = 0, to = np-1 ) # number of failures
+    y <- dnbinom( x, n, p )
+    x <- seq( from = n, to = np+n-1 )
+
+    x_bar <- n/p    
+    sd    <- sqrt(n*(1-p))/p
+  
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "NegBinomial n=%d, N=%d, p=%5.2f, mean=%6.1f, sdev=%6.1f", n, np, p, x_bar, sd ))
+    show_mean_sd(x_bar,sd)
+}
+
+# =======================================================================================
+# Selection without replacement
+
+plothyper <- function( n1, n2, n, show_binom = FALSE ) {
+    # n1 possible successes, n2 possible failures, n number of selected items
+    x <- seq( from=0, to=n)
+    y <- dhyper( x, n1, n2, n )
+
+    N     <- n1+n2
+
+    p     <- n1/N
+    x_bar <- n*p
+    sd    <- sqrt( n*p*(1-p) * (N-n)/(N-1) )
+
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "HyperGeom, pick %d from (%d,%d), mean=%6.1f, sdev=%6.1f", n, n1, n2, x_bar, sd ))
+    show_mean_sd(x_bar,sd)
+
+    if (show_binom) {
+       yb <- dbinom( x, n, p )
+       points( x,yb,col="blue" )
+    }
+}
+# ---------------------------------------------------------------------------------------
+plotpoisson <- function( lambda, extent=20) {
+    # Constant Rate of occurrence of events
+    x <- seq( from=0,to=extent )
+    y <- dpois(x, lambda)
+
+    x_bar <- lambda
+    sd    <- lambda
+    plot(x,y,type="h",col="red",xlab='x',ylab='P(X=x)',main=sprintf( "Poisson, lambda T = %8.4f, mean=%6.1f, sdev=%6.1f", lambda , x_bar, sd))
+    show_mean_sd(x_bar,sd)
+}
+@

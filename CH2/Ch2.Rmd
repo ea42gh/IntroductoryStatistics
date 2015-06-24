@@ -1,0 +1,84 @@
+---
+title: "Chapter2"
+output: html_document
+runtime: shiny
+---
+
+# Basic Probability Computations
+
+## The prob package
+
+A useful package is called **'prob'**
+* Type **help.start()** in the console window,
+* select **"Packages"** followed by
+* **"User guides, package vignettes and other documentation"**, and
+* look at the **prob::prob** PDF file.
+
+Include it with the library command: **library(prob)**
+```{r, echo=FALSE, message=FALSE}
+library(prob)
+```
+
+### Highlights - *samples*
+
+Selection from a given set of elements
+can occur
+* with or without replacement
+  + with replacement: an item can be picked any number of times,
+    the associated probability does not change
+  + without replacement: a gven item can be picked at most once.
+    probabilities change after every selection
+* The order of the picked items can or cannot be distinguished
+
+The possible results of such a selection process can be
+displayed using **urnsamples**, e.g.,
+```{r}
+urnsamples( c("red","green","blue"), 2, ordered = T, replace=FALSE )
+```
+
+**prob** has a number of sample spaces built in,
+such as **cards()** and **tosscoin()**
+
+### Highlights - *probabilites of samples*
+
+When the sample space consists of a finite number **N** of samples,
+we may be able to attach probabilities to individual samples.
+If we assume each sample to be equally likely, we will assign
+$P({a}) = \frac{1}{N}$ to sample $a$. Other assumptions are
+possible, however: if a coin is not fair, the probability of
+a head turning up in a coin toss be me far larger than the
+probability of a tail.
+
+With the equiprobable model, the probability of an event $A$
+is given by
+$$P(A) = \frac{\text{number of samples in A}}{N},$$
+so that computing probabilities reduces to a counting exercise.
+
+The number of possible results of the selection process from an urn is computed by **nsamp**,
+with arguments *nitems*, *k elections*, *replace* and *ordered*.
+```{r, echo=TRUE}
+nsamp( 3, 2, ordered = T, replace=FALSE )
+```
+Note the arguments of **nsamp** can be vectors.
+
+Frequencies associated with samples can of course be computed directly, e.g., by using the **factorial()** and **choose()** functions. Powers are computed with the notation *n^k*
+```{r,echo=TRUE}
+c(2^5,factorial(5),choose(20,3))
+```
+
+For equally likely outcomes
+we can use the *makespace=TRUE* argument to attach a *probs* column to the samples
+```{r, echo=TRUE}
+tosscoin(2,makespace=T)
+```
+
+Events are subsets of the sample space. In the simple case we
+are discussing here, the probability of
+a given event is the sum of the probabilities of the individual samples.
+```{r, echo=TRUE}
+M <- tosscoin(3,makespace=TRUE)
+A <- subset( M, M$toss2=="T")
+M
+A
+sum(A$probs)
+```
