@@ -11,6 +11,6 @@ shinyUI(fluidPage(
                             ,tabPanel("Plot_3",  verbatimTextOutput('text3a'), plotOutput('plot3'))
                             ,tabPanel("Plot_4",  plotOutput('plot4'))
                             ,tabPanel("Plot_5",  verbatimTextOutput('text5'),  plotOutput('plot5'))
-                , width="100%" )
+                ) ,  style='width: 100%'
      )
 ))

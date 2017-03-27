@@ -64,19 +64,19 @@ plot_coverage <- function( N, true_value, point_estimates, alpha, sigma, estimat
   abline(v = true_value, lwd = 2, lty = 2)
 }
 # --------------------------------------------
-feathers      <- c(6.1, 6.5, 6.9, 7.5, 7.6, 7.7, 8.2, 8.3, 8.3, 8.6, 8.7,
-                 8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.8, 9.9, 10.1, 10.5, 10.9,
-                 11.4, 11.6)
+feathers <- c(6.1, 6.5, 6.9, 7.5, 7.6, 7.7, 8.2, 8.3, 8.3, 8.6, 8.7,
+              8.8, 8.9, 9.1, 9.2, 9.3, 9.4, 9.8, 9.9, 10.1, 10.5, 10.9,
+              11.4, 11.6)
 
-feathers   <- round(mean(feathers),1)
-feathers   <- round(sd( feathers ),1)
+feathers.mu <- round(mean(feathers),1)
+feathers.sd <- round(sd( feathers ),1)
 
-feathers <- density_and_limits(feathers)
+feathers.dens <- density_and_limits(feathers)
 
-feathers <- feathers$xlim
-feathers <- feathers$ylim
+feathers.xlim <- feathers.dens$xlim
+feathers.ylim <- feathers.dens$ylim
 
-M           <- 100   # modify this only if the coverage plot is high enough...
+M        <- 100   # modify this only if the coverage plot is high enough...
 
 ###########################################################################################
 # Material for later: https://en.wikipedia.org/wiki/Prediction_interval

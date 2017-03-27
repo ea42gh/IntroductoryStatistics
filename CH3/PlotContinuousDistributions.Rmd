@@ -79,7 +79,7 @@ Special Cases
 
 $$f(x) = \frac{\beta}{\delta} ( \frac{x}{\delta} )^{\beta-1} e^{-( \frac{x}{\delta} )^\beta}, 0 \le x, \beta > 0, \delta > 0, \quad E(X) = \delta \Gamma (1+\tfrac{1}{\beta}), \quad Var(X)= \delta^2 \Gamma (1+\tfrac{2}{\beta}) - \delta^2 \Gamma^2(1+\tfrac{1}{\beta})$$
 
-$$F(x) = $1-e^{-(\frac{x}{\delta})^\beta}$$
+$$F(x) = 1-e^{-(\frac{x}{\delta})^\beta}$$
 ```{r, echo=FALSE}
 inputPanel(
   sliderInput("shape_wei", label = "beta (shape parameter)",

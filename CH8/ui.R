@@ -11,10 +11,9 @@ mainPanel(
      column(3,checkboxInput( "estimated", label = "Check if Sigma is Estimated"),value=FALSE),
      column(3,checkboxInput( "sorted", label = "Sort Intervals"),value=FALSE),
      column(3,actionButton( "again", label = "Repeat"))
-   ),
+   )
 
-   plotOutput("parent_distribution"),
-   #plotOutput("point_estimate_distribution"),
-   plotOutput("coverage")
+  , plotOutput("parent_distribution")
+  #, plotOutput("point_estimate_distribution")
+  , plotOutput("coverage")
 )))
-
